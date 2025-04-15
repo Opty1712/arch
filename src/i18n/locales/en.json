@@ -1,0 +1,37 @@
+{
+  "layout": {
+    "title": "User Management",
+    "logout": "Logout"
+  },
+  "login": {
+    "title": "Login",
+    "username": "Username",
+    "submit": "Login",
+    "demo_info": "Demo mode: you can enter any username"
+  },
+  "user": {
+    "profile": "User Profile",
+    "back_to_list": "Back to User List",
+    "loading": "Loading...",
+    "email": "Email",
+    "id": "User ID",
+    "roles": "Roles",
+    "no_roles": "No assigned roles",
+    "retry": "Retry"
+  },
+  "roles": {
+    "title": "User Role Management",
+    "loading": "Loading...",
+    "user_column": "User",
+    "retry": "Retry"
+  },
+  "error": {
+    "loading_user": "An error occurred while loading user data",
+    "loading_data": "An error occurred while loading data"
+  },
+  "not_found": {
+    "title": "Page Not Found",
+    "description": "The requested page does not exist or has been moved.",
+    "go_home": "Go to home page"
+  }
+}
