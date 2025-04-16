@@ -1,12 +1,9 @@
-import { appConfig } from "@/config/appConfig";
+import { LoginPage } from "@/pages/LoginPage";
+import { NotFoundPage } from "@/pages/NotFoundPage";
+import { RoleManagementPage } from "@/pages/RoleManagementPage";
+import { UserPage } from "@/pages/UserPage";
 import { observer } from "mobx-react-lite";
-import { Fragment } from "react";
 import { Route, Switch } from "wouter";
-import { LoginPage } from "../pages/LoginPage";
-import { NotFoundPage } from "../pages/NotFoundPage";
-import { RoleManagementPage } from "../pages/RoleManagementPage";
-import { UserPage } from "../pages/UserPage";
-import { userStore } from "../stores/userStore";
 
 type RoutePaths = (typeof routes)[number]["path"];
 
@@ -26,12 +23,13 @@ const routes = [
     exact: true,
   },
   {
+    path: "/login",
+    component: LoginPage,
+    exact: true,
+  },
+  {
     path: "/",
-    component: () => {
-      // Redirect home to roles page
-      window.location.replace(AppRoutes["/roles"]);
-      return null;
-    },
+    component: RoleManagementPage,
     exact: true,
   },
 ] as const;
@@ -42,19 +40,11 @@ AppRoutes = routes.reduce<AppRoutesType>((accumulator, current) => {
 }, {} as AppRoutesType);
 
 const RouterComponent = () => {
-  if (!userStore.isAuthenticated) {
-    return <LoginPage />;
-  }
-
   return (
     <Switch>
       {routes.map(({ path, component }) => (
-        <Fragment key={path}>
-          <Route path={path} component={component} />
-          <Route path={`${appConfig.demoURL}${path}`} component={component} />
-        </Fragment>
+        <Route key={path} path={path} component={component} />
       ))}
-
       <Route component={NotFoundPage} />
     </Switch>
   );

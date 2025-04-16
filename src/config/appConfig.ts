@@ -1,15 +1,8 @@
 export type appConfig = typeof appConfig;
 
-const demoURL = "/demo";
-
-const checkIsDemo = () => window.location.pathname.includes(demoURL);
+const apiBaseUrl = "/api";
 
 export const appConfig = {
-  apiBaseUrl: "/api",
-  isDemo: checkIsDemo(),
-  demoURL,
+  apiBaseUrl,
+  IS_MOCK_MODE: process.env.IS_MOCK_MODE || false,
 };
-
-export function initDemoModeFromLocation(): void {
-  appConfig.isDemo = checkIsDemo();
-}

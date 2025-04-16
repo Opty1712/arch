@@ -1,9 +1,15 @@
-import { adaptUser } from "../user/userAdapter";
 import { AuthResponse } from "./types";
 
-export function adaptAuth(rawAuth: any): AuthResponse {
+export function adaptAuth(response: any): AuthResponse {
   return {
-    token: (rawAuth.token || "").toUpperCase(),
-    user: adaptUser(rawAuth.user || {}),
+    token: response.token,
+    user: response.user
+      ? {
+          id: response.user.id,
+          name: response.user.name,
+          email: response.user.email,
+          roleIds: response.user.roleIds || [],
+        }
+      : null,
   };
 }

@@ -3,20 +3,20 @@ import { I18nextProvider } from "react-i18next";
 import { i18n } from "../i18n/i18n";
 import { LoginPage } from "./LoginPage";
 
-import { userStore } from "../stores/userStore";
+import { $userStore } from "../stores/userStore";
 
 const resetStore = () => {
-  userStore.isLoading = false;
-  userStore.error = null;
-  userStore.isAuthenticated = false;
-  userStore.user = null;
+  $userStore.isLoading = false;
+  $userStore.error = null;
+  $userStore.isAuthenticated = false;
+  $userStore.user = null;
 
-  userStore.login = async (username: string) => {
-    userStore.isLoading = true;
+  $userStore.login = async (username: string) => {
+    $userStore.isLoading = true;
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    userStore.isLoading = false;
-    userStore.isAuthenticated = true;
-    userStore.user = {
+    $userStore.isLoading = false;
+    $userStore.isAuthenticated = true;
+    $userStore.user = {
       id: 1,
       name: username,
       email: `${username.toLowerCase()}@example.com`,
@@ -53,13 +53,13 @@ export const Default: Story = {
 export const WithError: Story = {
   args: {},
   play: async () => {
-    userStore.error = "Invalid credentials";
+    $userStore.error = "Invalid credentials";
   },
 };
 
 export const Loading: Story = {
   args: {},
   play: async () => {
-    userStore.isLoading = true;
+    $userStore.isLoading = true;
   },
 };

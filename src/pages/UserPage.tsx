@@ -1,127 +1,103 @@
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { User } from "@/network/user/types";
+import { getUser, updateUserRoles } from "@/network/user/userApi";
+import { AppRoutes } from "@/router/Router";
+import { $rolesStore } from "@/stores/rolesStore";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "wouter";
-import { ErrorMessage } from "../components/ErrorMessage";
-import { User as UserType } from "../network/user/types";
-import { AppRoutes } from "../router/Router";
-import { roleStore } from "../stores/roleStore";
-import { userStore } from "../stores/userStore";
+import { useLocation, useRoute } from "wouter";
 
-const User: React.FC = () => {
+const UserPageComponent: React.FC = () => {
   const { t } = useTranslation();
-  const params = useParams<{ id: string }>();
+  const [, params] = useRoute("/user/:id");
+  const userId = params?.id ? parseInt(params.id, 10) : 0;
+  const [, navigate] = useLocation();
 
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const userId = params.id ? parseInt(params.id, 10) : -1;
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (isNaN(userId) || userId < 0) {
-        setError("Invalid user ID");
-        setIsLoading(false);
-        return;
-      }
-
+    const fetchData = async () => {
       setIsLoading(true);
-      setError(null);
-
       try {
-        if (roleStore.roles.length === 0) {
-          await roleStore.fetchRoles();
-        }
-
-        const userData = await userStore.fetchUser(userId);
+        const [, userData] = await Promise.all([
+          $rolesStore.fetchRoles(),
+          getUser(userId),
+        ]);
         setUser(userData);
+        setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : String(err));
+        setError(err as Error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserData();
-
-    return () => {};
+    if (userId) {
+      fetchData();
+    }
   }, [userId]);
 
-  const handleRetry = () => {
-    setIsLoading(true);
-    setError(null);
-    userStore
-      .fetchUser(userId)
-      .then((userData) => setUser(userData))
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : String(err))
-      )
-      .finally(() => setIsLoading(false));
+  const handleRoleToggle = async (roleId: number, checked: boolean) => {
+    if (!user) return;
+
+    const newRoleIds = checked
+      ? [...user.roleIds, roleId]
+      : user.roleIds.filter((id) => id !== roleId);
+
+    try {
+      const updatedUser = await updateUserRoles(userId, newRoleIds);
+      setUser(updatedUser);
+    } catch (err) {
+      console.error("Failed to update user roles:", err);
+      alert("Failed to update user roles");
+    }
   };
 
-  const roleNames = user?.roleIds
-    ? roleStore.getRoleNamesByIds(user.roleIds)
-    : [];
+  const handleBackClick = () => {
+    navigate(AppRoutes["/roles"]);
+  };
+
+  const { roles } = $rolesStore;
+  const combinedIsLoading = isLoading || $rolesStore.isLoading;
+  const combinedError = error || $rolesStore.error;
+
+  if (combinedIsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (combinedError) {
+    return <ErrorMessage error={combinedError} />;
+  }
+
+  if (!user) {
+    return <div>User not found</div>;
+  }
 
   return (
     <div>
-      <h2>{t("user.profile")}</h2>
-      <Link to={AppRoutes["/roles"]}>
-        <span>arrow_back</span>
-        {t("user.back_to_list")}
-      </Link>
+      <button onClick={handleBackClick}>← {t("user.back_to_users")}</button>
 
-      {isLoading && (
-        <div>
-          <span>refresh</span>
-          <span>{t("user.loading")}</span>
-        </div>
-      )}
+      <h2>{user.name}</h2>
+      <div>{user.email}</div>
 
-      {!isLoading && error && (
-        <div>
-          <ErrorMessage error={error} translationKey="error.loading_user" />
-          <button onClick={handleRetry}>{t("user.retry")}</button>
-        </div>
-      )}
-
-      {!isLoading && !error && user && (
-        <>
-          <span>person</span>
-
-          <div>
-            <h3>{user.name}</h3>
-
-            <div>
-              <div>
-                <p>{t("user.email")}</p>
-                <p>{user.email}</p>
-              </div>
-
-              <div>
-                <p>{t("user.id")}</p>
-                <p>{user.id}</p>
-              </div>
-
-              <div>
-                <p>{t("user.roles")}</p>
-                <div>
-                  {roleNames.length > 0 ? (
-                    roleNames.map((roleName, index) => (
-                      <span key={index}>{roleName}</span>
-                    ))
-                  ) : (
-                    <span>{t("user.no_roles")}</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      <h3>{t("user.roles")}</h3>
+      <div>
+        {roles.map((role) => (
+          <label key={role.id} style={{ display: "block", margin: "5px 0" }}>
+            <input
+              type="checkbox"
+              checked={user.roleIds.includes(role.id)}
+              onChange={(e) => handleRoleToggle(role.id, e.target.checked)}
+            />
+            {" " + role.name}
+          </label>
+        ))}
+      </div>
     </div>
   );
 };
 
-export const UserPage = observer(User);
+export const UserPage = observer(UserPageComponent);

@@ -2,7 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 
 interface ErrorMessageProps {
-  error: string | null;
+  error: Error | null;
   translationKey?: string;
 }
 
@@ -14,7 +14,7 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
   if (!error) return null;
 
-  const errorMessage = translationKey ? t(translationKey) : error;
+  const errorMessage = translationKey ? t(translationKey) : error?.message;
 
   return (
     <div>

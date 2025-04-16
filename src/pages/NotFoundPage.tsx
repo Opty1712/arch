@@ -1,7 +1,7 @@
+import { AppRoutes } from "@/router/Router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "wouter";
-import { AppRoutes } from "../router/Router";
 
 export const NotFoundPage: React.FC = () => {
   const { t } = useTranslation();

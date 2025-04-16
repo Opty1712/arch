@@ -1,64 +1,22 @@
+import { appConfig } from "@/config/appConfig";
+import {
+  logout as apiLogout,
+  fetchCurrentUser,
+  login,
+} from "@/network/auth/authApi";
+import { User } from "@/network/user/types";
 import { makeAutoObservable } from "mobx";
-import { login as apiLogin } from "../network/auth/authApi";
-import { User } from "../network/user/types";
-import { fetchUserAPI, updateUserRoles } from "../network/user/userApi";
 
-class UserStore {
+export class UserStore {
   user: User | null = null;
   isAuthenticated = false;
-
+  isMockMode = appConfig.IS_MOCK_MODE;
   isLoading = false;
-  error: string | null = null;
-
-  isDemoMode = true;
+  error: Error | null = null;
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  async login(username: string) {
-    if (!username?.trim()) return;
-
-    this.isLoading = true;
-    this.error = null;
-
-    try {
-      const authResponse = await apiLogin(username);
-      this.user = authResponse.user;
-      this.isAuthenticated = true;
-
-      localStorage.setItem("auth_token", authResponse.token);
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : String(err);
-      console.error("Login error:", err);
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  logout() {
-    this.user = null;
-    this.isAuthenticated = false;
-    localStorage.removeItem("auth_token");
-  }
-
-  async fetchUser(userId: number) {
-    this.isLoading = true;
-    this.error = null;
-
-    try {
-      const user = await fetchUserAPI(userId);
-      if (this.user && user.id === this.user.id) {
-        this.user = user;
-      }
-      return user;
-    } catch (err) {
-      this.error = err instanceof Error ? err.message : String(err);
-      console.error("Fetch user error:", err);
-      throw err;
-    } finally {
-      this.isLoading = false;
-    }
+    this.initFromStorage();
   }
 
   setUser(user: User | null) {
@@ -66,26 +24,53 @@ class UserStore {
     this.isAuthenticated = !!user;
   }
 
-  async updateUserRoles(userId: number, roleIds: number[]) {
-    this.isLoading = true;
-    this.error = null;
+  setLoading(isLoading: boolean) {
+    this.isLoading = isLoading;
+  }
+
+  setError(error: Error | null) {
+    this.error = error;
+  }
+
+  async initFromStorage(): Promise<void> {
+    try {
+      const authData = await fetchCurrentUser();
+      if (authData && authData.user) {
+        this.setUser(authData.user);
+      }
+    } catch (error) {
+      console.error("Failed to init user:", error);
+    }
+  }
+
+  async login(username: string): Promise<void> {
+    this.setLoading(true);
+    this.setError(null);
 
     try {
-      const updatedUser = await updateUserRoles(userId, roleIds);
-
-      if (this.user && updatedUser.id === this.user.id) {
-        this.user = updatedUser;
+      const response = await login(username);
+      if (response.user) {
+        this.setUser(response.user);
       }
-
-      return updatedUser;
     } catch (err) {
-      this.error = err instanceof Error ? err.message : String(err);
-      console.error("Update user roles error:", err);
+      this.setError(err as Error);
       throw err;
     } finally {
-      this.isLoading = false;
+      this.setLoading(false);
+    }
+  }
+
+  async logout(): Promise<void> {
+    this.setLoading(true);
+    try {
+      await apiLogout();
+      this.setUser(null);
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      this.setLoading(false);
     }
   }
 }
 
-export const userStore = new UserStore();
+export const $userStore = new UserStore();

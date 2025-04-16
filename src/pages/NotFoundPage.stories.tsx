@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { userStore } from "../stores/userStore";
+import { $userStore } from "../stores/userStore";
 import { NotFoundPage } from "./NotFoundPage";
 
 const setupMocks = () => {
-  userStore.setUser({
+  $userStore.setUser({
     id: 1,
     name: "Демо Пользователь",
     email: "demo@example.com",

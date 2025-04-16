@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { roleStore } from "../stores/roleStore";
-import { userStore } from "../stores/userStore";
+import { $roleStore } from "../stores/roleStore";
+import { $userStore } from "../stores/userStore";
 import { UserPage } from "./UserPage";
 
 const setupMocks = () => {
-  if (!userStore.isAuthenticated) {
-    userStore.setUser({
+  if (!$userStore.isAuthenticated) {
+    $userStore.setUser({
       id: 1,
       name: "Демо Пользователь",
       email: "demo@example.com",
@@ -13,8 +13,8 @@ const setupMocks = () => {
     });
   }
 
-  if (roleStore.roles.length === 0) {
-    roleStore.fetchRoles();
+  if ($roleStore.roles.length === 0) {
+    $roleStore.fetchRoles();
   }
 };
 
@@ -41,7 +41,7 @@ export const Loading: Story = {
   decorators: [
     (Story) => {
       setupMocks();
-      userStore.isLoading = true;
+      $userStore.isLoading = true;
       return <Story />;
     },
   ],
@@ -51,7 +51,7 @@ export const WithError: Story = {
   decorators: [
     (Story) => {
       setupMocks();
-      userStore.error = "Не удалось загрузить данные пользователя";
+      $userStore.error = "Не удалось загрузить данные пользователя";
       return <Story />;
     },
   ],
@@ -61,7 +61,7 @@ export const NoRoles: Story = {
   decorators: [
     (Story) => {
       setupMocks();
-      userStore.setUser({
+      $userStore.setUser({
         id: 2,
         name: "Пользователь без ролей",
         email: "noroles@example.com",

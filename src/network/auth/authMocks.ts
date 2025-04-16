@@ -1,4 +1,3 @@
-import { mockFetchUser } from "../user/userMocks";
 import { AuthResponse } from "./types";
 
 export async function mockLogin(username: string): Promise<AuthResponse> {
@@ -9,10 +8,17 @@ export async function mockLogin(username: string): Promise<AuthResponse> {
       username.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) % 3
     ) + 1;
 
-  const user = await mockFetchUser(userId);
+  const user = {
+    id: userId,
+    name: `User ${userId}`,
+    email: `user${userId}@example.com`,
+    roleIds: [userId],
+  };
 
-  return {
+  const rawAuthResponse = {
     token: `mock-token-${Date.now()}`,
     user,
   };
+
+  return rawAuthResponse;
 }

@@ -1,8 +1,9 @@
+import { AppRoutes } from "@/router/Router";
+import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useLocation } from "wouter";
-import { userStore } from "../stores/userStore";
+import { useLocation, useRoute } from "wouter";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,14 @@ interface LayoutProps {
 
 const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
   const { t, i18n } = useTranslation();
-  const [, setLocation] = useLocation();
+  const [, navigate] = useLocation();
+  const [isLoginPage] = useRoute(AppRoutes["/login"]);
+
+  useEffect(() => {
+    if (!$userStore.isAuthenticated && !isLoginPage) {
+      navigate(AppRoutes["/login"]);
+    }
+  }, [$userStore.isAuthenticated, isLoginPage]);
 
   const handleLanguageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -19,9 +27,15 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
     i18n.changeLanguage(newLang);
   };
 
-  const handleLogout = () => {
-    userStore.logout();
-    setLocation("/");
+  const handleLogout = async () => {
+    if (
+      window.confirm(
+        t("layout.confirm_logout") || "Вы уверены, что хотите выйти?"
+      )
+    ) {
+      await $userStore.logout();
+      navigate(AppRoutes["/login"]);
+    }
   };
 
   return (
@@ -35,8 +49,16 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
             <option value="en">English</option>
           </select>
 
-          {userStore.isAuthenticated && (
+          {$userStore.isLoading && <span>⟳ {t("layout.loading")}</span>}
+
+          {$userStore.isAuthenticated && (
             <button onClick={handleLogout}>{t("layout.logout")}</button>
+          )}
+
+          {$userStore.isAuthenticated && $userStore.user && (
+            <span className="user-info">
+              {t("layout.logged_in_as")} {$userStore.user.name}
+            </span>
           )}
         </div>
       </header>
