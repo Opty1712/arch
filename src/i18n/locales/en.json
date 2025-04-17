@@ -1,17 +1,24 @@
 {
   "layout": {
     "title": "User Management",
-    "logout": "Logout"
+    "logout": "Logout",
+    "loading": "Loading...",
+    "confirm_logout": "Are you sure you want to log out?",
+    "logged_in_as": "Logged in as"
   },
   "login": {
     "title": "Login",
     "username": "Username",
     "submit": "Login",
-    "demo_info": "Demo mode: you can enter any username"
+    "demo_info": "Demo mode: you can enter any username",
+    "welcome": "Welcome, {{name}}",
+    "already_logged_in": "You are already logged in",
+    "go_to_roles": "Go to role management"
   },
   "user": {
     "profile": "User Profile",
     "back_to_list": "Back to User List",
+    "back_to_users": "Back to Users",
     "loading": "Loading...",
     "email": "Email",
     "id": "User ID",
@@ -23,7 +30,9 @@
     "title": "User Role Management",
     "loading": "Loading...",
     "user_column": "User",
-    "retry": "Retry"
+    "retry": "Retry",
+    "no_roles_defined": "No roles defined",
+    "no_users": "No users found"
   },
   "error": {
     "loading_user": "An error occurred while loading user data",
