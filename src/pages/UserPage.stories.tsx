@@ -31,7 +31,6 @@ const meta = {
       $usersStore.setError(null);
 
       $roleStore.setRoles(mockRoles);
-      $roleStore.setInitialized(true);
       $roleStore.isLoading = false;
       $roleStore.error = null;
 

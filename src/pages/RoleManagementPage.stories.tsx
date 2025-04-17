@@ -51,7 +51,6 @@ const meta = {
       $userStore.error = null;
 
       $roleStore.setRoles(mockRoles);
-      $roleStore.setInitialized(true);
       $roleStore.isLoading = false;
       $roleStore.error = null;
 
@@ -80,6 +79,15 @@ export const WithError: Story = {
       $rolesPageStore.setError(
         new Error("Не удалось загрузить данные о ролях")
       );
+      return <Story />;
+    },
+  ],
+};
+
+export const NoRoles: Story = {
+  decorators: [
+    (Story) => {
+      $roleStore.setRoles([]);
       return <Story />;
     },
   ],

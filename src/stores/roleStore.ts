@@ -1,3 +1,4 @@
+import { appConfig } from "@/config/appConfig";
 import { getRoles } from "@/network/role/roleApi";
 import { Role } from "@/network/role/types";
 import { makeAutoObservable } from "mobx";
@@ -6,7 +7,6 @@ export class RoleStore {
   roles: Role[] = [];
   isLoading = false;
   error: Error | null = null;
-  initialized = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -24,13 +24,13 @@ export class RoleStore {
     this.error = error;
   }
 
-  setInitialized(initialized: boolean) {
-    this.initialized = initialized;
-  }
+  async fetchRoles(forceRefetch = false): Promise<void> {
+    if (appConfig.IS_STORYBOOK) {
+      return;
+    }
 
-  async fetchRoles(forceRefetch = false): Promise<Role[]> {
-    if (this.roles.length > 0 && !forceRefetch && this.initialized) {
-      return this.roles;
+    if (this.roles.length > 0 && !forceRefetch) {
+      return;
     }
 
     this.setLoading(true);
@@ -39,11 +39,8 @@ export class RoleStore {
     try {
       const roles = await getRoles();
       this.setRoles(roles);
-      this.setInitialized(true);
-      return roles;
     } catch (err) {
       this.setError(err as Error);
-      throw err;
     } finally {
       this.setLoading(false);
     }
@@ -60,7 +57,6 @@ export class RoleStore {
   reset() {
     this.roles = [];
     this.error = null;
-    this.initialized = false;
   }
 }
 

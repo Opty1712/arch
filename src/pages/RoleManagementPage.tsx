@@ -1,21 +1,18 @@
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { appConfig } from "@/config/appConfig";
-import { User } from "@/network/user/types";
-import { getUsers, updateUserRoles } from "@/network/user/userApi";
 import { APP_ROUTES } from "@/router/routes";
 import { $roleStore } from "@/stores/roleStore";
+import { $rolesPageStore } from "@/stores/rolesPageStore";
 import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "wouter";
 
 const RoleManagement: React.FC = () => {
   const { t } = useTranslation();
-  const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
   const [, navigate] = useLocation();
+
+  const { users, isLoading, error } = $rolesPageStore;
 
   useEffect(() => {
     if (!$userStore.isAuthenticated) {
@@ -23,28 +20,8 @@ const RoleManagement: React.FC = () => {
       return;
     }
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        if (appConfig.IS_STORYBOOK) {
-          setIsLoading(false);
-          return;
-        }
-
-        const [, usersData] = await Promise.all([
-          $roleStore.fetchRoles(),
-          getUsers(),
-        ]);
-        setUsers(usersData);
-        setError(null);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
+    $roleStore.fetchRoles();
+    $rolesPageStore.fetchUsers();
   }, [$userStore.isAuthenticated]);
 
   const handleRoleToggle = async (
@@ -59,13 +36,7 @@ const RoleManagement: React.FC = () => {
       ? [...user.roleIds, roleId]
       : user.roleIds.filter((id) => id !== roleId);
 
-    try {
-      const updatedUser = await updateUserRoles(userId, newRoleIds);
-      setUsers(users.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
-    } catch (err) {
-      console.error("Failed to update user roles:", err);
-      alert("Failed to update user roles");
-    }
+    await $rolesPageStore.updateUserRoles(userId, newRoleIds);
   };
 
   const { roles } = $roleStore;
@@ -85,36 +56,34 @@ const RoleManagement: React.FC = () => {
         />
       )}
 
-      {!combinedIsLoading &&
-        !combinedError &&
-        users.length > 0 &&
-        roles.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>{t("roles.user_column")}</th>
-                {roles.map((role) => (
-                  <th key={role.id}>{role.name}</th>
-                ))}
-              </tr>
-            </thead>
+      {!combinedIsLoading && !combinedError && users.length > 0 && (
+        <table>
+          <thead>
+            <tr>
+              <th>{t("roles.user_column")}</th>
+              {roles.map((role) => (
+                <th key={role.id}>{role.name}</th>
+              ))}
+            </tr>
+          </thead>
 
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id}>
-                  <td>
-                    <Link
-                      to={APP_ROUTES["/user/:id"].replace(
-                        ":id",
-                        user.id.toString()
-                      )}
-                    >
-                      {user.name}
-                    </Link>
-                    <div>({user.email})</div>
-                  </td>
+          <tbody>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>
+                  <Link
+                    to={APP_ROUTES["/user/:id"].replace(
+                      ":id",
+                      user.id.toString()
+                    )}
+                  >
+                    {user.name}
+                  </Link>
+                  <div>({user.email})</div>
+                </td>
 
-                  {roles.map((role) => (
+                {roles.length > 0 ? (
+                  roles.map((role) => (
                     <td key={role.id}>
                       <input
                         type="checkbox"
@@ -124,12 +93,19 @@ const RoleManagement: React.FC = () => {
                         }
                       />
                     </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+                  ))
+                ) : (
+                  <td>{t("roles.no_roles_defined")}</td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {!combinedIsLoading && !combinedError && users.length === 0 && (
+        <div>{t("roles.no_users")}</div>
+      )}
     </div>
   );
 };
