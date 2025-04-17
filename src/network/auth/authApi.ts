@@ -4,7 +4,7 @@ import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
 import { adaptAuth } from "./authAdapter";
 import { AuthSchema } from "./mocks/auth.mock.schema";
-import { mockLogin } from "./mocks/authMocks";
+import { mockLogin } from "./mocks/authMocksApi";
 import { AuthResponse, LoginRequest } from "./types";
 
 export async function login(username: string = "demo"): Promise<AuthResponse> {
@@ -19,10 +19,8 @@ export async function login(username: string = "demo"): Promise<AuthResponse> {
       .post(request)
       .json<unknown>();
 
-    // Преобразуем ответ к нашей модели данных
     const authResponse = adaptAuth(response);
 
-    // Валидируем ответ по схеме
     const validatedResponse = validateResponse(authResponse, AuthSchema);
 
     if (validatedResponse.token) {
@@ -54,16 +52,13 @@ export async function fetchCurrentUser(): Promise<AuthResponse | null> {
         .get()
         .json<unknown>();
 
-      // Создаем объект ответа авторизации
       const authResponse = {
         token,
         user: (response as any).user,
       };
 
-      // Валидируем ответ по схеме
       return validateResponse(authResponse, AuthSchema);
     } catch (error: any) {
-      // Если получили ошибку 401, значит токен недействителен
       if (error.status === 401 || error.status === 403) {
         localStorage.removeItem("auth_token");
       }
@@ -86,6 +81,5 @@ export async function logout(): Promise<void> {
     }
   }
 
-  // Всегда удаляем токен, даже если API запрос не удался
   localStorage.removeItem("auth_token");
 }

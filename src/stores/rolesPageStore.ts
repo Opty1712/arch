@@ -1,6 +1,6 @@
 import { appConfig } from "@/config/appConfig";
 import { User } from "@/network/user/types";
-import { getUsers, updateUserRoles } from "@/network/user/userApi";
+import { getUsers, updateUserRoles } from "@/network/users/usersApi";
 import { makeAutoObservable } from "mobx";
 import { $usersStore } from "./usersStore";
 

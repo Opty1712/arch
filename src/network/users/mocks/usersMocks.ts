@@ -1,6 +1,6 @@
 import { validateResponse } from "@/utils/validateResponse";
 import { RawUser, User } from "../types";
-import { adaptUser } from "../userAdapter";
+import { adaptUser } from "../usersAdapter";
 import userData from "./user.mock.json";
 import { UserSchema } from "./user.mock.schema";
 import usersData from "./users.mock.json";

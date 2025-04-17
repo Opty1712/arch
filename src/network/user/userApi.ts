@@ -2,59 +2,56 @@ import { appConfig } from "@/config/appConfig";
 import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { UserSchema } from "./mocks/user.mock.schema";
-import { mockFetchUser, mockFetchUsers } from "./mocks/userMocks";
-import { UsersSchema } from "./mocks/users.mock.schema";
+import { CurrentUserSchema } from "./mocks/currentUser.mock.schema";
+import {
+  mockFetchCurrentUser,
+  mockUpdateCurrentUser,
+} from "./mocks/currentUserMocks";
 import { User } from "./types";
 
-export async function getUser(userId: number): Promise<User> {
+export async function getCurrentUser(): Promise<User | null> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockFetchUser(userId);
+      return mockFetchCurrentUser();
     }
 
+    const token = localStorage.getItem("auth_token");
+    if (!token) return null;
+
     const response = await apiClient
-      .url(`/users/${userId}`)
+      .url("/users/me")
+      .auth(`Bearer ${token}`)
       .get()
       .json<unknown>();
 
-    return validateResponse(response, UserSchema);
+    return validateResponse(response, CurrentUserSchema);
   } catch (error) {
-    throw handleApiError(error as any);
+    console.error("Failed to fetch current user:", error);
+    return null;
   }
 }
 
-export async function getUsers(): Promise<User[]> {
+export async function updateCurrentUserProfile(profileData: {
+  name?: string;
+  email?: string;
+}): Promise<User> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockFetchUsers();
+      return mockUpdateCurrentUser(profileData);
     }
 
-    const response = await apiClient.url("/users").get().json<unknown>();
-
-    return validateResponse(response, UsersSchema);
-  } catch (error) {
-    throw handleApiError(error as any);
-  }
-}
-
-export async function updateUserRoles(
-  userId: number,
-  roleIds: number[]
-): Promise<User> {
-  try {
-    if (appConfig.IS_MOCK_MODE) {
-      const user = await mockFetchUser(userId);
-      const updatedUser = { ...user, roleIds };
-      return validateResponse(updatedUser, UserSchema);
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      throw new Error("User not authenticated");
     }
 
     const response = await apiClient
-      .url(`/users/${userId}/roles`)
-      .put({ roleIds })
+      .url("/users/me")
+      .auth(`Bearer ${token}`)
+      .put(profileData)
       .json<unknown>();
 
-    return validateResponse(response, UserSchema);
+    return validateResponse(response, CurrentUserSchema);
   } catch (error) {
     throw handleApiError(error as any);
   }

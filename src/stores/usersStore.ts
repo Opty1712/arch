@@ -3,7 +3,7 @@ import { User } from "@/network/user/types";
 import {
   updateUserRoles as apiUpdateUserRoles,
   getUser,
-} from "@/network/user/userApi";
+} from "@/network/users/usersApi";
 import { makeAutoObservable } from "mobx";
 
 class UsersStore {

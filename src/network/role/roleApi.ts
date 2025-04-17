@@ -2,7 +2,7 @@ import { appConfig } from "@/config/appConfig";
 import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { mockFetchRoles } from "./mocks/roleMocks";
+import { mockFetchRoles } from "./mocks/roleMocksApi";
 import { RolesSchema } from "./mocks/roles.mock.schema";
 import { Role } from "./types";
 
