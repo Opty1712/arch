@@ -1,6 +1,6 @@
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { appConfig } from "@/config/appConfig";
-import { AppRoutes } from "@/router/Router";
+import { APP_ROUTES } from "@/router/routes";
 import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     if (username.trim()) {
       try {
         await $userStore.login(username);
-        navigate(AppRoutes["/roles"]);
+        navigate(APP_ROUTES["/roles"]);
       } catch (error) {
         console.error("Login failed:", error);
       }
@@ -31,7 +31,7 @@ const Login: React.FC = () => {
       <div>
         <h2>{t("login.welcome", { name: $userStore.user.name })}</h2>
         <p>{t("login.already_logged_in")}</p>
-        <Link href={AppRoutes["/roles"]}>
+        <Link href={APP_ROUTES["/roles"]}>
           <button>{t("login.go_to_roles")}</button>
         </Link>
       </div>

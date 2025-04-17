@@ -1,3 +1,4 @@
+import { appConfig } from "@/config/appConfig";
 import {
   logout as apiLogout,
   fetchCurrentUser,
@@ -32,6 +33,11 @@ export class UserStore {
   }
 
   async initFromStorage(): Promise<void> {
+    // В среде Storybook не делаем запросы
+    if (appConfig.IS_STORYBOOK) {
+      return;
+    }
+
     try {
       const token = localStorage.getItem("auth_token");
       if (!token) {
@@ -56,6 +62,10 @@ export class UserStore {
   }
 
   async login(username: string): Promise<void> {
+    if (appConfig.IS_STORYBOOK) {
+      return;
+    }
+
     this.setLoading(true);
     this.setError(null);
 
@@ -73,6 +83,11 @@ export class UserStore {
   }
 
   async logout(): Promise<void> {
+    // В среде Storybook не делаем запросы
+    if (appConfig.IS_STORYBOOK) {
+      return;
+    }
+
     this.setLoading(true);
     try {
       await apiLogout();

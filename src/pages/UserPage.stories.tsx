@@ -1,21 +1,21 @@
+import { Role } from "@/network/role/types";
+import { User } from "@/network/user/types";
 import type { Meta, StoryObj } from "@storybook/react";
 import { $roleStore } from "../stores/roleStore";
-import { $userStore } from "../stores/userStore";
+import { $usersStore } from "../stores/usersStore";
 import { UserPage } from "./UserPage";
 
-const setupMocks = () => {
-  if (!$userStore.isAuthenticated) {
-    $userStore.setUser({
-      id: 1,
-      name: "Демо Пользователь",
-      email: "demo@example.com",
-      roleIds: [1, 2],
-    });
-  }
+const mockRoles: Role[] = [
+  { id: 1, name: "администратор", description: "Полный доступ" },
+  { id: 2, name: "модератор", description: "Управление контентом" },
+  { id: 3, name: "пользователь", description: "Базовый доступ" },
+];
 
-  if ($roleStore.roles.length === 0) {
-    $roleStore.fetchRoles();
-  }
+const mockUser: User = {
+  id: 1,
+  name: "Демо Пользователь",
+  email: "demo@example.com",
+  roleIds: [1, 2],
 };
 
 const meta = {
@@ -26,7 +26,15 @@ const meta = {
   },
   decorators: [
     (Story) => {
-      setupMocks();
+      $usersStore.setCurrentUser(mockUser);
+      $usersStore.setLoading(false);
+      $usersStore.setError(null);
+
+      $roleStore.setRoles(mockRoles);
+      $roleStore.setInitialized(true);
+      $roleStore.isLoading = false;
+      $roleStore.error = null;
+
       return <Story />;
     },
   ],
@@ -40,8 +48,7 @@ export const Default: Story = {};
 export const Loading: Story = {
   decorators: [
     (Story) => {
-      setupMocks();
-      $userStore.isLoading = true;
+      $usersStore.setLoading(true);
       return <Story />;
     },
   ],
@@ -50,8 +57,9 @@ export const Loading: Story = {
 export const WithError: Story = {
   decorators: [
     (Story) => {
-      setupMocks();
-      $userStore.error = "Не удалось загрузить данные пользователя";
+      $usersStore.setError(
+        new Error("Не удалось загрузить данные пользователя")
+      );
       return <Story />;
     },
   ],
@@ -60,13 +68,11 @@ export const WithError: Story = {
 export const NoRoles: Story = {
   decorators: [
     (Story) => {
-      setupMocks();
-      $userStore.setUser({
-        id: 2,
-        name: "Пользователь без ролей",
-        email: "noroles@example.com",
+      const userWithNoRoles = {
+        ...mockUser,
         roleIds: [],
-      });
+      };
+      $usersStore.setCurrentUser(userWithNoRoles);
       return <Story />;
     },
   ],

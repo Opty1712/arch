@@ -1,46 +1,32 @@
+import { User } from "@/network/user/types";
 import type { Meta, StoryObj } from "@storybook/react";
-import { I18nextProvider } from "react-i18next";
-import { i18n } from "../i18n/i18n";
+import { $userStore } from "../stores/userStore";
 import { LoginPage } from "./LoginPage";
 
-import { $userStore } from "../stores/userStore";
-
-const resetStore = () => {
-  $userStore.isLoading = false;
-  $userStore.error = null;
-  $userStore.isAuthenticated = false;
-  $userStore.user = null;
-
-  $userStore.login = async (username: string) => {
-    $userStore.isLoading = true;
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    $userStore.isLoading = false;
-    $userStore.isAuthenticated = true;
-    $userStore.user = {
-      id: 1,
-      name: username,
-      email: `${username.toLowerCase()}@example.com`,
-      roleIds: [1],
-    };
-  };
+// Мокированные данные
+const mockUser: User = {
+  id: 1,
+  name: "Демо Пользователь",
+  email: "demo@example.com",
+  roleIds: [1, 2],
 };
 
 const meta = {
   title: "Pages/LoginPage",
   component: LoginPage,
-  decorators: [
-    (Story) => {
-      resetStore();
-      return (
-        <I18nextProvider i18n={i18n}>
-          <Story />
-        </I18nextProvider>
-      );
-    },
-  ],
   parameters: {
     layout: "fullscreen",
   },
+  decorators: [
+    (Story) => {
+      $userStore.isLoading = false;
+      $userStore.error = null;
+      $userStore.isAuthenticated = false;
+      $userStore.user = null;
+
+      return <Story />;
+    },
+  ],
 } satisfies Meta<typeof LoginPage>;
 
 export default meta;
@@ -51,15 +37,29 @@ export const Default: Story = {
 };
 
 export const WithError: Story = {
-  args: {},
-  play: async () => {
-    $userStore.error = "Invalid credentials";
-  },
+  decorators: [
+    (Story) => {
+      $userStore.error = new Error("Неверные учетные данные");
+      return <Story />;
+    },
+  ],
 };
 
 export const Loading: Story = {
-  args: {},
-  play: async () => {
-    $userStore.isLoading = true;
-  },
+  decorators: [
+    (Story) => {
+      $userStore.isLoading = true;
+      return <Story />;
+    },
+  ],
+};
+
+export const LoggedIn: Story = {
+  decorators: [
+    (Story) => {
+      $userStore.isAuthenticated = true;
+      $userStore.user = mockUser;
+      return <Story />;
+    },
+  ],
 };

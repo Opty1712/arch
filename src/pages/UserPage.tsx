@@ -1,7 +1,8 @@
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { appConfig } from "@/config/appConfig";
 import { User } from "@/network/user/types";
 import { getUser, updateUserRoles } from "@/network/user/userApi";
-import { AppRoutes } from "@/router/Router";
+import { APP_ROUTES } from "@/router/routes";
 import { $roleStore } from "@/stores/roleStore";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
@@ -22,10 +23,12 @@ const UserPageComponent: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [, userData] = await Promise.all([
-          $roleStore.fetchRoles(),
-          getUser(userId),
-        ]);
+        if (appConfig.IS_STORYBOOK) {
+          setIsLoading(false);
+          return;
+        }
+
+        const userData = await getUser(userId);
         setUser(userData);
         setError(null);
       } catch (err) {
@@ -57,7 +60,7 @@ const UserPageComponent: React.FC = () => {
   };
 
   const handleBackClick = () => {
-    navigate(AppRoutes["/roles"]);
+    navigate(APP_ROUTES["/roles"]);
   };
 
   const { roles } = $roleStore;

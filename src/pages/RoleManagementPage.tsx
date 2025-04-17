@@ -1,7 +1,8 @@
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { appConfig } from "@/config/appConfig";
 import { User } from "@/network/user/types";
 import { getUsers, updateUserRoles } from "@/network/user/userApi";
-import { AppRoutes } from "@/router/Router";
+import { APP_ROUTES } from "@/router/routes";
 import { $roleStore } from "@/stores/roleStore";
 import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
@@ -17,15 +18,19 @@ const RoleManagement: React.FC = () => {
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    // Если пользователь не аутентифицирован, перенаправляем на страницу входа
     if (!$userStore.isAuthenticated) {
-      navigate(AppRoutes["/login"]);
+      navigate(APP_ROUTES["/login"]);
       return;
     }
 
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        if (appConfig.IS_STORYBOOK) {
+          setIsLoading(false);
+          return;
+        }
+
         const [, usersData] = await Promise.all([
           $roleStore.fetchRoles(),
           getUsers(),
@@ -99,7 +104,7 @@ const RoleManagement: React.FC = () => {
                 <tr key={user.id}>
                   <td>
                     <Link
-                      to={AppRoutes["/user/:id"].replace(
+                      to={APP_ROUTES["/user/:id"].replace(
                         ":id",
                         user.id.toString()
                       )}

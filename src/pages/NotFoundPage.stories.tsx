@@ -1,14 +1,13 @@
+import { User } from "@/network/user/types";
 import type { Meta, StoryObj } from "@storybook/react";
 import { $userStore } from "../stores/userStore";
 import { NotFoundPage } from "./NotFoundPage";
 
-const setupMocks = () => {
-  $userStore.setUser({
-    id: 1,
-    name: "Демо Пользователь",
-    email: "demo@example.com",
-    roleIds: [1, 2],
-  });
+const mockUser: User = {
+  id: 1,
+  name: "Демо Пользователь",
+  email: "demo@example.com",
+  roleIds: [1, 2],
 };
 
 const meta = {
@@ -19,7 +18,11 @@ const meta = {
   },
   decorators: [
     (Story) => {
-      setupMocks();
+      $userStore.setUser(mockUser);
+      $userStore.isAuthenticated = true;
+      $userStore.isLoading = false;
+      $userStore.error = null;
+
       return <Story />;
     },
   ],
@@ -29,12 +32,3 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-
-export const DemoMode: Story = {
-  decorators: [
-    (Story) => {
-      setupMocks();
-      return <Story />;
-    },
-  ],
-};

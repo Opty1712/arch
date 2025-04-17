@@ -17,7 +17,8 @@ export default defineConfig(async ({ mode }) => {
       emptyOutDir: true,
     },
     define: {
-      "process.env.IS_MOCK_MODE": JSON.stringify(env.IS_MOCK_MODE ?? ""),
+      "process.env.IS_MOCK_MODE": env.IS_MOCK_MODE ?? "",
+      "process.env.IS_STORYBOOK": env.IS_STORYBOOK ?? "",
     },
   };
 });

@@ -1,4 +1,4 @@
-import { AppRoutes } from "@/router/Router";
+import { APP_ROUTES } from "@/router/routes";
 import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
 import React, { useEffect } from "react";
@@ -12,10 +12,9 @@ interface LayoutProps {
 const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
   const { t, i18n } = useTranslation();
   const [, navigate] = useLocation();
-  const [isLoginPage] = useRoute(AppRoutes["/login"]);
+  const [isLoginPage] = useRoute(APP_ROUTES["/login"]);
 
   useEffect(() => {
-    // Проверяем наличие токена при загрузке компонента
     const checkAuth = async () => {
       const token = localStorage.getItem("auth_token");
       if (token && !$userStore.isAuthenticated) {
@@ -23,7 +22,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
       }
 
       if (!$userStore.isAuthenticated && !isLoginPage) {
-        navigate(AppRoutes["/login"]);
+        navigate(APP_ROUTES["/login"]);
       }
     };
 
@@ -44,7 +43,7 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
       )
     ) {
       await $userStore.logout();
-      navigate(AppRoutes["/login"]);
+      navigate(APP_ROUTES["/login"]);
     }
   };
 

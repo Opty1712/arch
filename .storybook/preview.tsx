@@ -1,6 +1,10 @@
 import type { Preview } from "@storybook/react";
 import React from "react";
-import "../src/i18n/i18n";
+import { I18nextProvider } from "react-i18next";
+import { appConfig } from "../src/config/appConfig";
+import { i18n } from "../src/i18n/i18n";
+
+appConfig.IS_STORYBOOK = true;
 
 const preview: Preview = {
   parameters: {
@@ -8,14 +12,18 @@ const preview: Preview = {
     controls: {
       matchers: {
         color: /(background|color)$/i,
-        date: /Date$/,
+        date: /Date$/i,
       },
     },
+    i18n,
+    locale: "ru",
   },
   decorators: [
-    (Story) => {
-      return <Story />;
-    },
+    (Story) => (
+      <I18nextProvider i18n={i18n}>
+        <Story />
+      </I18nextProvider>
+    ),
   ],
 };
 
