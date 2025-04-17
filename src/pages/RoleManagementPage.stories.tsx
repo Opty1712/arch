@@ -1,5 +1,5 @@
+import { User } from "@/network/currentUser/types";
 import { Role } from "@/network/role/types";
-import { User } from "@/network/user/types";
 import type { Meta, StoryObj } from "@storybook/react";
 import { $roleStore } from "../stores/roleStore";
 import { $rolesPageStore } from "../stores/rolesPageStore";

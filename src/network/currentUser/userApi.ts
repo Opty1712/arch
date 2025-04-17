@@ -2,17 +2,17 @@ import { appConfig } from "@/config/appConfig";
 import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { CurrentUserSchema } from "./mocks/currentUser.mock.schema";
 import {
-  mockFetchCurrentUser,
+  mockCurrentUserApi,
   mockUpdateCurrentUser,
-} from "./mocks/currentUserMocks";
+} from "./mockCurrentUserApi";
+import { CurrentUserSchema } from "./mocks/currentUser.mock.schema";
 import { User } from "./types";
 
 export async function getCurrentUser(): Promise<User | null> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockFetchCurrentUser();
+      return mockCurrentUserApi();
     }
 
     const token = localStorage.getItem("auth_token");

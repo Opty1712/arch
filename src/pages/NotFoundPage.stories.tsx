@@ -1,4 +1,4 @@
-import { User } from "@/network/user/types";
+import { User } from "@/network/currentUser/types";
 import type { Meta, StoryObj } from "@storybook/react";
 import { $userStore } from "../stores/userStore";
 import { NotFoundPage } from "./NotFoundPage";

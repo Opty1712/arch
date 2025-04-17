@@ -4,7 +4,7 @@ import {
   fetchCurrentUser,
   login,
 } from "@/network/auth/authApi";
-import { User } from "@/network/user/types";
+import { User } from "@/network/currentUser/types";
 import { makeAutoObservable } from "mobx";
 import { $roleStore } from "./roleStore";
 

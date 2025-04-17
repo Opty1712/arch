@@ -1,10 +1,10 @@
 import { validateResponse } from "@/utils/validateResponse";
-import { User } from "../types";
-import { adaptUser } from "../userAdapter";
-import currentUserData from "./currentUser.mock.json";
-import { CurrentUserSchema } from "./currentUser.mock.schema";
+import { adaptUser } from "./adaptUser";
+import currentUserData from "./mocks/currentUser.mock.json";
+import { CurrentUserSchema } from "./mocks/currentUser.mock.schema";
+import { User } from "./types";
 
-export async function mockFetchCurrentUser(): Promise<User | null> {
+export async function mockCurrentUserApi(): Promise<User | null> {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   const token = localStorage.getItem("auth_token");

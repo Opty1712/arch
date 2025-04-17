@@ -2,29 +2,34 @@ import { appConfig } from "@/config/appConfig";
 import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { adaptAuth } from "./authAdapter";
-import { AuthSchema } from "./mocks/auth.mock.schema";
-import { mockLogin } from "./mocks/authMocksApi";
-import { AuthResponse, LoginRequest } from "./types";
+import { adaptAuth } from "./adaptAuth";
+import { mockAuthApi } from "./mockAuthApi";
+import { CombinedAuthResponse, combinedAuthSchema } from "./schema";
 
-export async function login(username: string = "demo"): Promise<AuthResponse> {
+export async function login(
+  username: string = "demo"
+): Promise<CombinedAuthResponse> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockLogin(username);
+      return mockAuthApi(username);
     }
 
-    const request: LoginRequest = { username };
     const response = await apiClient
       .url("/auth/login")
-      .post(request)
+      .post({ username })
       .json<unknown>();
 
     const authResponse = adaptAuth(response);
 
-    const validatedResponse = validateResponse(authResponse, AuthSchema);
+    const validatedResponse = validateResponse(
+      authResponse,
+      combinedAuthSchema
+    );
 
-    if (validatedResponse.token) {
+    if ("token" in validatedResponse) {
       localStorage.setItem("auth_token", validatedResponse.token);
+    } else {
+      throw new Error(validatedResponse.message);
     }
 
     return validatedResponse;
@@ -33,12 +38,12 @@ export async function login(username: string = "demo"): Promise<AuthResponse> {
   }
 }
 
-export async function fetchCurrentUser(): Promise<AuthResponse | null> {
+export async function fetchCurrentUser(): Promise<CombinedAuthResponse | null> {
   try {
     const token = localStorage.getItem("auth_token");
 
     if (appConfig.IS_MOCK_MODE) {
-      return mockLogin("demo");
+      return mockAuthApi("demo");
     }
 
     if (!token) {
@@ -57,7 +62,7 @@ export async function fetchCurrentUser(): Promise<AuthResponse | null> {
         user: (response as any).user,
       };
 
-      return validateResponse(authResponse, AuthSchema);
+      return validateResponse(authResponse, combinedAuthSchema);
     } catch (error: any) {
       if (error.status === 401 || error.status === 403) {
         localStorage.removeItem("auth_token");

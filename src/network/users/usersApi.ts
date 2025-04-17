@@ -4,13 +4,13 @@ import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
 import { UserSchema } from "./mocks/user.mock.schema";
 import { UsersSchema } from "./mocks/users.mock.schema";
-import { mockFetchUser, mockFetchUsers } from "./mocks/usersMocks";
+import { mockUserApi, mockUsersApi } from "./mockUserApi";
 import { User } from "./types";
 
 export async function getUser(userId: number): Promise<User> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockFetchUser(userId);
+      return mockUserApi(userId);
     }
 
     const response = await apiClient
@@ -26,7 +26,7 @@ export async function getUser(userId: number): Promise<User> {
 export async function getUsers(): Promise<User[]> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return mockFetchUsers();
+      return mockUsersApi();
     }
 
     const response = await apiClient.url("/users").get().json<unknown>();
@@ -42,7 +42,7 @@ export async function updateUserRoles(
 ): Promise<User> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      const user = await mockFetchUser(userId);
+      const user = await mockUserApi(userId);
       const updatedUser = { ...user, roleIds };
       return validateResponse(updatedUser, UserSchema);
     }

@@ -1,5 +1,5 @@
 import { appConfig } from "@/config/appConfig";
-import { User } from "@/network/user/types";
+import { User } from "@/network/currentUser/types";
 import {
   updateUserRoles as apiUpdateUserRoles,
   getUser,

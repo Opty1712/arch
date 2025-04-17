@@ -1,17 +1,17 @@
 import { validateResponse } from "@/utils/validateResponse";
-import { RawUser, User } from "../types";
-import { adaptUser } from "../usersAdapter";
-import userData from "./user.mock.json";
-import { UserSchema } from "./user.mock.schema";
-import usersData from "./users.mock.json";
-import { UsersSchema } from "./users.mock.schema";
+import { adaptUser } from "./adaptUser";
+import userData from "./mocks/user.mock.json";
+import { UserSchema } from "./mocks/user.mock.schema";
+import usersData from "./mocks/users.mock.json";
+import { UsersSchema } from "./mocks/users.mock.schema";
+import { RawUser, User } from "./types";
 
 const mockUsersMap: Record<number, RawUser> = {};
 usersData.forEach((user) => {
   mockUsersMap[user.id] = user;
 });
 
-export async function mockFetchUser(userId: number): Promise<User> {
+export async function mockUserApi(userId: number): Promise<User> {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   if (userId === 1) {
@@ -27,7 +27,7 @@ export async function mockFetchUser(userId: number): Promise<User> {
   throw new Error(`User with ID ${userId} not found`);
 }
 
-export async function mockFetchUsers(): Promise<User[]> {
+export async function mockUsersApi(): Promise<User[]> {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
   const validatedUsers = validateResponse(usersData, UsersSchema);

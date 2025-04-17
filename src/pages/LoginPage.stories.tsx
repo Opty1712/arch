@@ -1,14 +1,11 @@
-import { User } from "@/network/user/types";
 import type { Meta, StoryObj } from "@storybook/react";
+import { ComponentProps, FC } from "react";
+import mockedUserData from "../network/auth/mocks/auth.mock.json";
 import { $userStore } from "../stores/userStore";
 import { LoginPage } from "./LoginPage";
 
-const mockUser: User = {
-  id: 1,
-  name: "Демо Пользователь",
-  email: "demo@example.com",
-  roleIds: [1, 2],
-};
+type CombinedProps = Partial<typeof $userStore> &
+  ComponentProps<typeof LoginPage> & { userName?: string };
 
 const meta = {
   title: "Pages/LoginPage",
@@ -26,14 +23,12 @@ const meta = {
       return <Story />;
     },
   ],
-} satisfies Meta<typeof LoginPage>;
+} satisfies Meta<FC<CombinedProps>>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
-  args: {},
-};
+export const Default: Story = {};
 
 export const WithError: Story = {
   decorators: [
@@ -54,11 +49,17 @@ export const Loading: Story = {
 };
 
 export const LoggedIn: Story = {
-  decorators: [
-    (Story) => {
-      $userStore.isAuthenticated = true;
-      $userStore.user = mockUser;
-      return <Story />;
-    },
-  ],
+  args: {
+    /** Пример того, как можно в сторю инъектить контролы и связывать их с mobX */
+    userName: "David",
+  },
+  render: (args) => {
+    $userStore.isAuthenticated = true;
+    $userStore.user = {
+      ...mockedUserData.user,
+      name: args.userName || mockedUserData.user.name,
+    };
+
+    return <LoginPage />;
+  },
 };
