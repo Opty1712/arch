@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { $userStore } from "../stores/userStore";
 import { LoginPage } from "./LoginPage";
 
-// Мокированные данные
 const mockUser: User = {
   id: 1,
   name: "Демо Пользователь",

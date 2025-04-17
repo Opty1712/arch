@@ -48,6 +48,7 @@ export const Loading: Story = {
   decorators: [
     (Story) => {
       $usersStore.setLoading(true);
+
       return <Story />;
     },
   ],
@@ -59,6 +60,7 @@ export const WithError: Story = {
       $usersStore.setError(
         new Error("Не удалось загрузить данные пользователя")
       );
+
       return <Story />;
     },
   ],
@@ -71,7 +73,9 @@ export const NoRoles: Story = {
         ...mockUser,
         roleIds: [],
       };
+
       $usersStore.setCurrentUser(userWithNoRoles);
+
       return <Story />;
     },
   ],
