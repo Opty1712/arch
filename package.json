@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open --host",
     "build": "vite build",
     "storybook": "storybook dev -p 6006",
     "generate-schemas": "tsx scripts/generate-schemas.ts"

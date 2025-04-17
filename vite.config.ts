@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
 
-export default defineConfig(async ({ mode }) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return {
     plugins: [react()],
@@ -20,5 +20,7 @@ export default defineConfig(async ({ mode }) => {
       "process.env.IS_MOCK_MODE":
         mode === "production" ? JSON.stringify(false) : env.IS_MOCK_MODE ?? "",
     },
+    base: "/",
+    appType: "spa",
   };
 });

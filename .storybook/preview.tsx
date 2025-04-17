@@ -2,7 +2,7 @@ import type { Preview } from "@storybook/react";
 import React from "react";
 import { I18nextProvider } from "react-i18next";
 import { appConfig } from "../src/config/appConfig";
-import { i18n } from "../src/i18n/i18n";
+import { i18n } from "../src/i18n";
 
 appConfig.IS_STORYBOOK = true;
 

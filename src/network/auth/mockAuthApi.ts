@@ -1,4 +1,4 @@
-import { validateResponse } from "@/utils/validateResponse";
+import { validateResponse } from "@/network/validateResponse";
 import authData from "./mocks/auth.mock.json";
 import { AuthSchema } from "./mocks/auth.mock.schema";
 import { CombinedAuthResponse } from "./schema";

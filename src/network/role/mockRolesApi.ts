@@ -1,4 +1,4 @@
-import { validateResponse } from "@/utils/validateResponse";
+import { validateResponse } from "@/network/validateResponse";
 import { adaptRoles } from "./adaptRoles";
 import rolesData from "./mocks/roles.mock.json";
 import { RolesSchema } from "./mocks/roles.mock.schema";

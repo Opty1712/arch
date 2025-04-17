@@ -1,5 +1,5 @@
 import { appConfig } from "@/config/appConfig";
-import { validateResponse } from "@/utils/validateResponse";
+import { validateResponse } from "@/network/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
 import { UserSchema } from "./mocks/user.mock.schema";

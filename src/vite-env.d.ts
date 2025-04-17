@@ -2,8 +2,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_API_URL: string;
-  readonly VITE_IS_MOCK_MODE: string; // или boolean, если конвертируешь заранее
-  // добавляй сюда все переменные, которые используешь
+  readonly VITE_IS_MOCK_MODE: string;
 }
 
 interface ImportMeta {

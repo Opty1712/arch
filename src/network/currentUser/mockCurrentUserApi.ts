@@ -1,4 +1,4 @@
-import { validateResponse } from "@/utils/validateResponse";
+import { validateResponse } from "@/network/validateResponse";
 import { adaptUser } from "./adaptUser";
 import currentUserData from "./mocks/currentUser.mock.json";
 import { CurrentUserSchema } from "./mocks/currentUser.mock.schema";
