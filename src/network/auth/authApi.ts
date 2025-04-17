@@ -41,16 +41,24 @@ export async function fetchCurrentUser(): Promise<AuthResponse | null> {
       return null;
     }
 
-    const response = await apiClient
-      .url("/auth/me")
-      .auth(`Bearer ${token}`)
-      .get()
-      .json<{ user: User }>();
+    try {
+      const response = await apiClient
+        .url("/auth/me")
+        .auth(`Bearer ${token}`)
+        .get()
+        .json<{ user: User }>();
 
-    return {
-      token,
-      user: response.user,
-    };
+      return {
+        token,
+        user: response.user,
+      };
+    } catch (error: any) {
+      // Если получили ошибку 401, значит токен недействителен
+      if (error.status === 401 || error.status === 403) {
+        localStorage.removeItem("auth_token");
+      }
+      throw error;
+    }
   } catch (error) {
     console.error("Failed to fetch current user:", error);
     return null;
@@ -68,5 +76,6 @@ export async function logout(): Promise<void> {
     }
   }
 
+  // Всегда удаляем токен, даже если API запрос не удался
   localStorage.removeItem("auth_token");
 }

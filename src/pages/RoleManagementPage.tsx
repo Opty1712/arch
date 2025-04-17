@@ -2,24 +2,32 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { User } from "@/network/user/types";
 import { getUsers, updateUserRoles } from "@/network/user/userApi";
 import { AppRoutes } from "@/router/Router";
-import { $rolesStore } from "@/stores/rolesStore";
+import { $roleStore } from "@/stores/roleStore";
+import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 const RoleManagement: React.FC = () => {
   const { t } = useTranslation();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [, navigate] = useLocation();
 
   useEffect(() => {
+    // Если пользователь не аутентифицирован, перенаправляем на страницу входа
+    if (!$userStore.isAuthenticated) {
+      navigate(AppRoutes["/login"]);
+      return;
+    }
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
         const [, usersData] = await Promise.all([
-          $rolesStore.fetchRoles(),
+          $roleStore.fetchRoles(),
           getUsers(),
         ]);
         setUsers(usersData);
@@ -32,7 +40,7 @@ const RoleManagement: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [$userStore.isAuthenticated]);
 
   const handleRoleToggle = async (
     userId: number,
@@ -55,9 +63,9 @@ const RoleManagement: React.FC = () => {
     }
   };
 
-  const { roles } = $rolesStore;
-  const combinedIsLoading = isLoading || $rolesStore.isLoading;
-  const combinedError = error || $rolesStore.error;
+  const { roles } = $roleStore;
+  const combinedIsLoading = isLoading || $roleStore.isLoading;
+  const combinedError = error || $roleStore.error;
 
   return (
     <div>

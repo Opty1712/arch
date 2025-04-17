@@ -2,7 +2,7 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { User } from "@/network/user/types";
 import { getUser, updateUserRoles } from "@/network/user/userApi";
 import { AppRoutes } from "@/router/Router";
-import { $rolesStore } from "@/stores/rolesStore";
+import { $roleStore } from "@/stores/roleStore";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -23,7 +23,7 @@ const UserPageComponent: React.FC = () => {
       setIsLoading(true);
       try {
         const [, userData] = await Promise.all([
-          $rolesStore.fetchRoles(),
+          $roleStore.fetchRoles(),
           getUser(userId),
         ]);
         setUser(userData);
@@ -60,9 +60,9 @@ const UserPageComponent: React.FC = () => {
     navigate(AppRoutes["/roles"]);
   };
 
-  const { roles } = $rolesStore;
-  const combinedIsLoading = isLoading || $rolesStore.isLoading;
-  const combinedError = error || $rolesStore.error;
+  const { roles } = $roleStore;
+  const combinedIsLoading = isLoading || $roleStore.isLoading;
+  const combinedError = error || $roleStore.error;
 
   if (combinedIsLoading) {
     return <div>Loading...</div>;

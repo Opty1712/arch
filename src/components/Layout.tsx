@@ -15,9 +15,19 @@ const LayoutComponent: React.FC<LayoutProps> = ({ children }) => {
   const [isLoginPage] = useRoute(AppRoutes["/login"]);
 
   useEffect(() => {
-    if (!$userStore.isAuthenticated && !isLoginPage) {
-      navigate(AppRoutes["/login"]);
-    }
+    // Проверяем наличие токена при загрузке компонента
+    const checkAuth = async () => {
+      const token = localStorage.getItem("auth_token");
+      if (token && !$userStore.isAuthenticated) {
+        await $userStore.initFromStorage();
+      }
+
+      if (!$userStore.isAuthenticated && !isLoginPage) {
+        navigate(AppRoutes["/login"]);
+      }
+    };
+
+    checkAuth();
   }, [$userStore.isAuthenticated, isLoginPage]);
 
   const handleLanguageChange = (

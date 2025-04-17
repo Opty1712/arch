@@ -2,7 +2,7 @@ import { getRoles } from "@/network/role/roleApi";
 import { Role } from "@/network/role/types";
 import { makeAutoObservable } from "mobx";
 
-export class RolesStore {
+export class RoleStore {
   roles: Role[] = [];
   isLoading = false;
   error: Error | null = null;
@@ -56,6 +56,12 @@ export class RolesStore {
   getRolesByIds(ids: number[]): Role[] {
     return this.roles.filter((role) => ids.includes(role.id));
   }
+
+  reset() {
+    this.roles = [];
+    this.error = null;
+    this.initialized = false;
+  }
 }
 
-export const $rolesStore = new RolesStore();
+export const $roleStore = new RoleStore();

@@ -1,4 +1,3 @@
-import { appConfig } from "@/config/appConfig";
 import {
   logout as apiLogout,
   fetchCurrentUser,
@@ -6,11 +5,11 @@ import {
 } from "@/network/auth/authApi";
 import { User } from "@/network/user/types";
 import { makeAutoObservable } from "mobx";
+import { $roleStore } from "./roleStore";
 
 export class UserStore {
   user: User | null = null;
   isAuthenticated = false;
-  isMockMode = appConfig.IS_MOCK_MODE;
   isLoading = false;
   error: Error | null = null;
 
@@ -34,12 +33,25 @@ export class UserStore {
 
   async initFromStorage(): Promise<void> {
     try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        this.setUser(null);
+        return;
+      }
+
       const authData = await fetchCurrentUser();
       if (authData && authData.user) {
         this.setUser(authData.user);
+      } else {
+        // Если данные пользователя не получены, очищаем токен
+        localStorage.removeItem("auth_token");
+        this.setUser(null);
       }
     } catch (error) {
       console.error("Failed to init user:", error);
+      // При ошибке также очищаем токен
+      localStorage.removeItem("auth_token");
+      this.setUser(null);
     }
   }
 
@@ -64,9 +76,19 @@ export class UserStore {
     this.setLoading(true);
     try {
       await apiLogout();
+      localStorage.removeItem("auth_token");
       this.setUser(null);
+      // Сбрасываем состояние roleStore
+      $roleStore.reset();
+      // Принудительно перезагружаем страницу для сброса всех данных
+      window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);
+      // Даже при ошибке удаляем токен и сбрасываем пользователя
+      localStorage.removeItem("auth_token");
+      this.setUser(null);
+      $roleStore.reset();
+      window.location.reload();
     } finally {
       this.setLoading(false);
     }

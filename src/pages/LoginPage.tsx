@@ -1,4 +1,5 @@
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { appConfig } from "@/config/appConfig";
 import { AppRoutes } from "@/router/Router";
 import { $userStore } from "@/stores/userStore";
 import { observer } from "mobx-react-lite";
@@ -62,7 +63,7 @@ const Login: React.FC = () => {
         </button>
       </form>
 
-      {$userStore.isMockMode && (
+      {appConfig.IS_MOCK_MODE && (
         <div>
           <p>
             {t("login.demo_info") ||
