@@ -1,8 +1,9 @@
-import { appConfig } from "../../config/appConfig";
+import { appConfig } from "@/config/appConfig";
+import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { adaptRoles } from "./roleAdapter";
-import { mockFetchRoles } from "./roleMocks";
+import { mockFetchRoles } from "./mocks/roleMocks";
+import { RolesSchema } from "./mocks/roles.mock.schema";
 import { Role } from "./types";
 
 export async function getRoles(): Promise<Role[]> {
@@ -11,8 +12,9 @@ export async function getRoles(): Promise<Role[]> {
       return mockFetchRoles();
     }
 
-    const response = await apiClient.url("/roles").get().json();
-    return adaptRoles(Array.isArray(response) ? response : []);
+    const response = await apiClient.url("/roles").get().json<unknown>();
+
+    return validateResponse(response, RolesSchema);
   } catch (error) {
     throw handleApiError(error as any);
   }

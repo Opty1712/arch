@@ -1,0 +1,6 @@
+{
+  "id": 1,
+  "name": "Демо Пользователь",
+  "email": "demo@example.com",
+  "roleIds": [1, 2]
+}

@@ -1,9 +1,11 @@
-import { appConfig } from "../../config/appConfig";
+import { appConfig } from "@/config/appConfig";
+import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { RawUser, User } from "./types";
-import { adaptUser } from "./userAdapter";
-import { mockFetchUser } from "./userMocks";
+import { UserSchema } from "./mocks/user.mock.schema";
+import { mockFetchUser, mockFetchUsers } from "./mocks/userMocks";
+import { UsersSchema } from "./mocks/users.mock.schema";
+import { User } from "./types";
 
 export async function getUser(userId: number): Promise<User> {
   try {
@@ -11,11 +13,12 @@ export async function getUser(userId: number): Promise<User> {
       return mockFetchUser(userId);
     }
 
-    const response = (await apiClient
+    const response = await apiClient
       .url(`/users/${userId}`)
       .get()
-      .json()) as RawUser;
-    return adaptUser(response);
+      .json<unknown>();
+
+    return validateResponse(response, UserSchema);
   } catch (error) {
     throw handleApiError(error as any);
   }
@@ -24,15 +27,12 @@ export async function getUser(userId: number): Promise<User> {
 export async function getUsers(): Promise<User[]> {
   try {
     if (appConfig.IS_MOCK_MODE) {
-      return Promise.all([
-        mockFetchUser(1),
-        mockFetchUser(2),
-        mockFetchUser(3),
-      ]);
+      return mockFetchUsers();
     }
 
-    const response = await apiClient.url("/users").get().json();
-    return Array.isArray(response) ? response.map(adaptUser) : [];
+    const response = await apiClient.url("/users").get().json<unknown>();
+
+    return validateResponse(response, UsersSchema);
   } catch (error) {
     throw handleApiError(error as any);
   }
@@ -45,16 +45,16 @@ export async function updateUserRoles(
   try {
     if (appConfig.IS_MOCK_MODE) {
       const user = await mockFetchUser(userId);
-      user.roleIds = roleIds;
-      return user;
+      const updatedUser = { ...user, roleIds };
+      return validateResponse(updatedUser, UserSchema);
     }
 
-    const response = (await apiClient
+    const response = await apiClient
       .url(`/users/${userId}/roles`)
       .put({ roleIds })
-      .json()) as RawUser;
+      .json<unknown>();
 
-    return adaptUser(response);
+    return validateResponse(response, UserSchema);
   } catch (error) {
     throw handleApiError(error as any);
   }

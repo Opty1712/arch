@@ -1,9 +1,10 @@
-import { appConfig } from "../../config/appConfig";
+import { appConfig } from "@/config/appConfig";
+import { validateResponse } from "@/utils/validateResponse";
 import { apiClient } from "../api";
 import { handleApiError } from "../errorHandler";
-import { User } from "../user/types";
 import { adaptAuth } from "./authAdapter";
-import { mockLogin } from "./authMocks";
+import { AuthSchema } from "./mocks/auth.mock.schema";
+import { mockLogin } from "./mocks/authMocks";
 import { AuthResponse, LoginRequest } from "./types";
 
 export async function login(username: string = "demo"): Promise<AuthResponse> {
@@ -13,17 +14,22 @@ export async function login(username: string = "demo"): Promise<AuthResponse> {
     }
 
     const request: LoginRequest = { username };
-    const response = await apiClient.url("/auth/login").post(request).json<{
-      user: User;
-    }>();
+    const response = await apiClient
+      .url("/auth/login")
+      .post(request)
+      .json<unknown>();
 
+    // Преобразуем ответ к нашей модели данных
     const authResponse = adaptAuth(response);
 
-    if (authResponse.token) {
-      localStorage.setItem("auth_token", authResponse.token);
+    // Валидируем ответ по схеме
+    const validatedResponse = validateResponse(authResponse, AuthSchema);
+
+    if (validatedResponse.token) {
+      localStorage.setItem("auth_token", validatedResponse.token);
     }
 
-    return authResponse;
+    return validatedResponse;
   } catch (error) {
     throw handleApiError(error as any);
   }
@@ -46,12 +52,16 @@ export async function fetchCurrentUser(): Promise<AuthResponse | null> {
         .url("/auth/me")
         .auth(`Bearer ${token}`)
         .get()
-        .json<{ user: User }>();
+        .json<unknown>();
 
-      return {
+      // Создаем объект ответа авторизации
+      const authResponse = {
         token,
-        user: response.user,
+        user: (response as any).user,
       };
+
+      // Валидируем ответ по схеме
+      return validateResponse(authResponse, AuthSchema);
     } catch (error: any) {
       // Если получили ошибку 401, значит токен недействителен
       if (error.status === 401 || error.status === 403) {
