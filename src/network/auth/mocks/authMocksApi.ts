@@ -8,7 +8,7 @@ export async function mockLogin(username: string): Promise<AuthResponse> {
 
   const validatedAuth = validateResponse(authData, AuthSchema);
 
-  return {
+  const response = {
     token: validatedAuth.token,
     user: {
       ...validatedAuth.user,
@@ -18,4 +18,8 @@ export async function mockLogin(username: string): Promise<AuthResponse> {
           : validatedAuth.user.name,
     },
   };
+
+  localStorage.setItem("auth_token", response.token);
+
+  return response;
 }

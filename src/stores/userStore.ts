@@ -33,7 +33,6 @@ export class UserStore {
   }
 
   async initFromStorage(): Promise<void> {
-    // В среде Storybook не делаем запросы
     if (appConfig.IS_STORYBOOK) {
       return;
     }
@@ -49,13 +48,11 @@ export class UserStore {
       if (authData && authData.user) {
         this.setUser(authData.user);
       } else {
-        // Если данные пользователя не получены, очищаем токен
         localStorage.removeItem("auth_token");
         this.setUser(null);
       }
     } catch (error) {
       console.error("Failed to init user:", error);
-      // При ошибке также очищаем токен
       localStorage.removeItem("auth_token");
       this.setUser(null);
     }
@@ -83,7 +80,6 @@ export class UserStore {
   }
 
   async logout(): Promise<void> {
-    // В среде Storybook не делаем запросы
     if (appConfig.IS_STORYBOOK) {
       return;
     }
@@ -93,13 +89,10 @@ export class UserStore {
       await apiLogout();
       localStorage.removeItem("auth_token");
       this.setUser(null);
-      // Сбрасываем состояние roleStore
       $roleStore.reset();
-      // Принудительно перезагружаем страницу для сброса всех данных
       window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);
-      // Даже при ошибке удаляем токен и сбрасываем пользователя
       localStorage.removeItem("auth_token");
       this.setUser(null);
       $roleStore.reset();
